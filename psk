@@ -1,0 +1,27 @@
+#!/bin/bash
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+NOCOLOR=`tput sgr0`
+searchterm=$(echo $1)
+retVal=$?
+
+
+# Check if gum is installed
+gum -v 2>&1>/dev/null
+if [ $? -ne 0 ];then
+    echo $RED"Error!"$NOCOLOR
+    echo "Please install$GREEN gum$NOCOLOR from$GREEN https://github.com/charmbracelet/gum"
+    exit 1
+fi
+
+echo "Press$GREEN <space>$NOCOLOR or$GREEN <tab>$NOCOLOR to select multiple items. Press$GREEN <enter>$NOCOLOR to confirm. Press$RED <ctrl>-c$NOCOLOR to cancel"
+# Kill things
+if test $# -gt 0;then
+    death=$(ps aux | grep $searchterm | grep -v "grep" | gum choose --no-limit | awk '{print $2}')
+else
+    death=$(ps aux | grep -v "grep" | gum filter --no-limit | awk '{print $2}')
+fi
+for i in $death;do
+    echo $RED"Killing process$NOCOLOR: $i"
+    kill $i
+done
